@@ -1,0 +1,92 @@
+AWSTemplateFormatVersion: 2010-09-09
+# Parameters section contains names that are substituted in the Resources section
+# These parameters are the names the resources created in the Data Catalog
+Parameters:                                                                                                       
+# The name of the crawler to be created
+  RawCrawlerName:  
+    Type: String
+    Default: order-data-raw
+  TrustesCrawlerName:  
+    Type: String
+    Default: order-data-trusted
+  DatabaseName:
+    Type: String
+    Default: order-database
+#
+#
+# Resources section defines metadata for the Data Catalog
+Resources:
+#Create IAM Role assumed by the crawler. For demonstration, this role is given all permissions.
+  IAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "glue.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Path: "/"
+      Policies:
+        -
+          PolicyName: "root"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Action: "*"
+                Resource: "*"
+ # Create a database to contain tables created by the crawler
+  Database:
+    Type: AWS::Glue::Database
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      DatabaseInput:
+        Name: !Ref DatabaseName
+        Description: "AWS Glue container to hold metadata tables for the orders crawler"
+  Classifier:
+    Type: AWS::Glue::Classifier
+    Properties: 
+      JsonClassifier: 
+        JsonPath: $[*]
+        Name: json_classifier
+ #Create a crawler to crawl the orders data on a public S3 bucket
+  RawCrawler:
+    Type: AWS::Glue::Crawler
+    Properties:
+      Name: !Ref RawCrawlerName
+      Role: !GetAtt IAMRole.Arn
+      Description: AWS Glue crawler to crawl orders data
+      Classifiers:
+        - json_classifier
+      #Schedule: none, use default run-on-demand
+      DatabaseName: !Ref DatabaseName
+      Targets:
+        S3Targets:
+          # S3 bucket with the orders data
+          - Path: "s3://how-desafio/raw/"
+      SchemaChangePolicy:
+        UpdateBehavior: "UPDATE_IN_DATABASE"
+        DeleteBehavior: "LOG"
+  TrustedCrawler:
+    Type: AWS::Glue::Crawler
+    Properties:
+      Name: !Ref TrustesCrawlerName
+      Role: !GetAtt IAMRole.Arn
+      Description: AWS Glue crawler to crawl orders data
+      Classifiers:
+        - json_classifier
+      #Schedule: none, use default run-on-demand
+      DatabaseName: !Ref DatabaseName
+      Targets:
+        S3Targets:
+          # S3 bucket with the orders data
+          - Path: "s3://how-desafio/trusted/orders"
+      SchemaChangePolicy:
+        UpdateBehavior: "LOG"
+        DeleteBehavior: "LOG"
