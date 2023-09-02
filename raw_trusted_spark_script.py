@@ -70,22 +70,26 @@ def data_quality(input_dataset):
     order_null = validator.expect_column_values_to_not_be_null(column="order_id")
     order_unique = validator.expect_column_values_to_be_unique(column="order_id")
     date_format = validator.expect_column_values_to_match_strftime_format("date_partition", "%Y-%m-%d")
-    rows_number = validator.expect_table_row_count_to_be_between(400,600)
+    rows_number = validator.expect_table_row_count_to_be_between(5000,7000)
 
     
     if order_null.success == False :
       raise ValueError(f"Data quality check failed {order_null.expectation_config.kwargs['column']} is null.")
+    else : logger.info(f"Data quality check success {order_null.expectation_config.kwargs['column']} is not null.")
     
-    elif order_unique.success == False :
+    if order_unique.success == False :
       raise ValueError(f"Data quality check failed {order_unique.expectation_config.kwargs['column']} is not unique.")
-    
-    elif date_format.success == False :
+    else: logger.info(f"Data quality check success {order_unique.expectation_config.kwargs['column']} is unique.")
+       
+    if date_format.success == False :
       raise ValueError(f"Data quality check failed {date_format.expectation_config.kwargs['column']} is not in {date_format.expectation_config.kwargs['strftime_format']} format.")
+    else: logger.info(f"Data quality check success {date_format.expectation_config.kwargs['column']} is in {date_format.expectation_config.kwargs['strftime_format']} format.")
     
-    #elif rows_number.success == False :
-    #  raise ValueError(f"Data quality check failed number of rows is not between {rows_number.expectation_config.kwargs['min_value']} and {rows_number.expectation_config.kwargs['max_value']}.")
-    
-    else: logger.info(f"All validators passed with success!")
+    if rows_number.success == False :
+      raise ValueError(f"Data quality check failed number of rows is not between {rows_number.expectation_config.kwargs['min_value']} and {rows_number.expectation_config.kwargs['max_value']}.")
+    else: logger.info(f"Data quality check succes number of rows is between {rows_number.expectation_config.kwargs['min_value']} and {rows_number.expectation_config.kwargs['max_value']}.")
+     
+    logger.info(f"All validators passed with success!")
 
 def main():
     
@@ -98,11 +102,12 @@ def main():
     """
     
     spark = create_spark_session()
-    input_data = "s3://how-desafio/raw/*/*.json"
-    output_data = "s3://how-desafio/trusted"
+    #input_data = "s3://how-desafio/raw/*/*.json"
+    #output_data = "s3://how-desafio/trusted"
+    input_data = "order-data/*/*.json"
+    output_data = "trusted/"
     
-    process_order(spark, input_data, output_data)  
-    #data_quality(spark, input_data, output_data)
+    process_order(spark, input_data, output_data) 
 
 if __name__ == "__main__":
     main()
