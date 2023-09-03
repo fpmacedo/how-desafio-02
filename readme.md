@@ -4,7 +4,7 @@
 
 ## 1. Project Description
 
-This is the first required project in a total o of three to reach the certificate at How Data Engineer Bootcamp. The main objective here is to build an ETL pipeline that create fake data and extracts this data from the local machine and save in S3 using JSON or CSV format, crawl the data using GLUE crawlers and use ATHENA to visualize the data.
+This is the first required project in a total o of three to reach the certificate at How Data Engineer Bootcamp. The main objective here is to build an ETL pipeline that create fake data and extracts this data from the local machine and save in S3 using JSON or CSV format, process the data with Spark, crawl the data using GLUE crawlers and use ATHENA to visualize the data.
 
 In the figure bellow you can see the arquitecture of the proposed solution.
 
