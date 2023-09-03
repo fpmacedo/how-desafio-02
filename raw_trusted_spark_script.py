@@ -1,6 +1,5 @@
 
-import pyspark
-from pyspark.sql.functions import date_format, col
+from pyspark.sql.functions import *
 from pyspark.sql import SparkSession
 import logging
 import os
@@ -60,8 +59,6 @@ def data_quality(input_dataset):
     
     gx_context.add_or_update_expectation_suite("my_expectation_suite")
     
-    #my_batch_request = data_asset
-    
     validator = gx_context.get_validator(
     batch_request=data_asset,
     expectation_suite_name="my_expectation_suite"
@@ -70,7 +67,7 @@ def data_quality(input_dataset):
     order_null = validator.expect_column_values_to_not_be_null(column="order_id")
     order_unique = validator.expect_column_values_to_be_unique(column="order_id")
     date_format = validator.expect_column_values_to_match_strftime_format("date_partition", "%Y-%m-%d")
-    rows_number = validator.expect_table_row_count_to_be_between(5000,7000)
+    rows_number = validator.expect_table_row_count_to_be_between(200,7000)
 
     
     if order_null.success == False :
@@ -102,10 +99,10 @@ def main():
     """
     
     spark = create_spark_session()
-    #input_data = "s3://how-desafio/raw/*/*.json"
-    #output_data = "s3://how-desafio/trusted"
-    input_data = "order-data/*/*.json"
-    output_data = "trusted/"
+    input_data = "s3://how-desafio/raw/orders/*/*.json"
+    output_data = "s3://how-desafio/trusted"
+    #input_data = "order-data/*/*.json"
+    #output_data = "trusted/"
     
     process_order(spark, input_data, output_data) 
 

@@ -30,6 +30,7 @@ for day in range(1, days):
         s3_utils.upload_file(file_path, bucket_name, object_name)
 
 #upload pyspark script
-s3_utils.upload_file("spark_script.py", bucket_name, "spark/script.py")
+s3_utils.upload_file("raw_trusted_spark_script.py", bucket_name, "spark/raw_trusted_script.py")
+s3_utils.upload_file("trusted_business_spark_script.py", bucket_name, "spark/trusted_business_script.py")
 
 # %%

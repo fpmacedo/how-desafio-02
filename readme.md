@@ -50,19 +50,19 @@ The data will be partitioned using the order date:
 
 Partition 2023-05-08:
 ```
-s3://how-desafio-01/order-data/2023-05-08/2023-05-08-00.json
-s3://how-desafio-01/order-data/2023-05-08/2023-05-08-01.json
+s3://how-desafio/order-data/2023-05-08/2023-05-08-00.json
+s3://how-desafio/order-data/2023-05-08/2023-05-08-01.json
 ...
-s3://how-desafio-01/order-data/2023-05-08/2023-05-08-198.json
-s3://how-desafio-01/order-data/2023-05-08/2023-05-08-199.json
+s3://how-desafio/order-data/2023-05-08/2023-05-08-198.json
+s3://how-desafio/order-data/2023-05-08/2023-05-08-199.json
 ```
 Partition 2023-05-09:
 ```
-s3://how-desafio-01/order-data/2023-05-09/2023-05-09-00.json
-s3://how-desafio-01/order-data/2023-05-09/2023-05-09-01.json
+s3://how-desafio/order-data/2023-05-09/2023-05-09-00.json
+s3://how-desafio/order-data/2023-05-09/2023-05-09-01.json
 ...
-s3://how-desafio-01/order-data/2023-05-09/2023-05-09-198.json
-s3://how-desafio-01/order-data/2023-05-09/2023-05-09-199.json
+s3://how-desafio/order-data/2023-05-09/2023-05-09-198.json
+s3://how-desafio/order-data/2023-05-09/2023-05-09-199.json
 ```
 
 ## 3. Running the project
@@ -73,23 +73,50 @@ s3://how-desafio-01/order-data/2023-05-09/2023-05-09-199.json
 
 3.3. Using python run the file `upload_s3.py` to create the S3 bucket and upload the files to it;
 
-3.4. Using the AWS CLI with the command bellow run the `crawler.yaml` file to create the crawler stack using Cloudformation:
+3.4. Using AWS Console create the EMR cluster to run the pyspark scripts:
+
+3.4.1 Select spark apps to install:
+![](img/emr-1.jpg)
+
+3.4.2 Select the instance type:
+![](img/emr-2.jpg)
+
+3.4.3 Create the steps in the cluster:
+![](img/emr-3.jpg)
+![](img/emr-4.jpg)
+
+3.4.4 Create the bootstrap actions to run great expectations:
+![](img/emr-5.jpg)
+The .sh file containning the following code:
+```
+#!/bin/bash
+sudo python3 -m pip install urllib3==1.26.6
+sudo python3 -m pip install great_expectations
+```
+3.4.5 Configure the IAM access:
+![](img/emr-6.jpg)
+Very important to give access to the S3 buckets
+![](img/emr-7.jpg)
+
+3.4.6 Click in create cluster:
+
+3.4.7 Wait for the steps to finish:
+![](img/emr-steps.jpg)
+
+3.5. Using the AWS CLI with the command bellow run the `crawler.yaml` file to create the crawler stack using Cloudformation:
 
 ```
 aws cloudformation create-stack --stack-name cf-create-crawler-awscli --template-body file://crawler.yaml --capabilities CAPABILITY_NAMED_IAM
  ```
 
-3.5. In the AWS Console run the crawler:
+3.6. In the AWS Console run the crawler:
 
 ![](img/crawler_run.jpg)
 
-## 4. Using Athen run your querys to analyse data:
+## 4. Using Athen run your querys to export table DDL:
 
-4.1 Simple partition select:
-    ![](img/query_1_athena.jpg)
+4.1 Trusted orders table:
+    ![](img/orders-ddl.jpg)
 
-4.2 Counting distinct citys in each day:
-    ![](img/query_2_athena.jpg)
-
-4.3 Counting how many each product sold in a specific partition:
-    ![](img/query_3_athena.jpg)
+4.2 Business customers table:
+    ![](img/customers-ddl.jpg)

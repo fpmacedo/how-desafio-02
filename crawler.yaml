@@ -6,9 +6,12 @@ Parameters:
   RawCrawlerName:  
     Type: String
     Default: order-data-raw
-  TrustesCrawlerName:  
+  TrustedCrawlerName:  
     Type: String
     Default: order-data-trusted
+  BusinessCrawlerName:  
+    Type: String
+    Default: order-data-business
   DatabaseName:
     Type: String
     Default: order-database
@@ -68,7 +71,6 @@ Resources:
       DatabaseName: !Ref DatabaseName
       Targets:
         S3Targets:
-          # S3 bucket with the orders data
           - Path: "s3://how-desafio/raw/"
       SchemaChangePolicy:
         UpdateBehavior: "UPDATE_IN_DATABASE"
@@ -76,7 +78,7 @@ Resources:
   TrustedCrawler:
     Type: AWS::Glue::Crawler
     Properties:
-      Name: !Ref TrustesCrawlerName
+      Name: !Ref TrustedCrawlerName
       Role: !GetAtt IAMRole.Arn
       Description: AWS Glue crawler to crawl orders data
       Classifiers:
@@ -85,8 +87,20 @@ Resources:
       DatabaseName: !Ref DatabaseName
       Targets:
         S3Targets:
-          # S3 bucket with the orders data
           - Path: "s3://how-desafio/trusted/orders"
+  BusinessCrawler:
+    Type: AWS::Glue::Crawler
+    Properties:
+      Name: !Ref BusinessCrawlerName
+      Role: !GetAtt IAMRole.Arn
+      Description: AWS Glue crawler to crawl orders data
+      Classifiers:
+        - json_classifier
+      #Schedule: none, use default run-on-demand
+      DatabaseName: !Ref DatabaseName
+      Targets:
+        S3Targets:
+          - Path: "s3://how-desafio/business/customers"
       SchemaChangePolicy:
         UpdateBehavior: "LOG"
         DeleteBehavior: "LOG"
