@@ -23,8 +23,7 @@ def create_spark_session():
 def process_cutomers(spark, input_data, output_data):
 
     """
-    Perform ETL on orders to create the orders_silver:
-    - Extract the match result data and insert in the customers table.
+    Perform ETL on orders to create the customers
       
     Parameters:
     - spark: spark session
